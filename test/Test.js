@@ -10,27 +10,32 @@ describe("Test contract", function () {
          * Getting all the test accounts from hardhat network
          */
         const [owner] = await ethers.getSigners();
-        const TestContract = await ethers.getContractFactory("Test");
+        const TestContract1 = await ethers.getContractFactory("Test");
+        // const TestContract2 = await ethers.getContractFactory("Test1");
 
         /**
          * Deploying The Contract
+         * For multiple contract contract deployment will follo the same way
          */
-        const contract = await TestContract.deploy();
+        const contract1 = await TestContract1.deploy();
+        // const contract2 = await TestContract2.deploy();
 
         /**
          * Getting the ether balance of a specific account
          */
-        const balance = await contract.provider.getBalance(owner.address);
+        const balance1 = await contract1.provider.getBalance(owner.address);
+
         /**
          * Calling contract functions
         */
-       const additionTest = await contract.add(6, 6);
-       const subtractionTest = await contract.subtract(6, 6);
-       const address = await contract.getowner();
-       console.log(address)
+       const additionTest = await contract1.add(6, 6);
+
+       const number = await contract1.dummy();
+
+       console.log(number)
        
        const tx = {
-         to: contract.address,
+         to: contract1.address,
          value: ethers.utils.parseEther('5', 'ether')
         };
 
@@ -38,10 +43,7 @@ describe("Test contract", function () {
          * Sending ether to the smartcontract from the Externel Owned account
          */
         const transaction1 = await owner.sendTransaction(tx);
-        const transaction2 = await owner.sendTransaction(tx);
         
-        const contractbalance = await contract.provider.getBalance(contract.address);
-        console.log(balance)
-        console.log(contractbalance)
+        const contractbalance = await contract1.provider.getBalance(contract1.address);
     });
 });

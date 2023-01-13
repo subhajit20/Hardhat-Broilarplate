@@ -3,14 +3,14 @@
 // Solidity files have to start with this pragma.
 // It will be used by the Solidity compiler to validate its version.
 pragma solidity ^0.8.9;
+import {Test1} from './Test1.sol';
 
-
-contract Test {
-    event Message(string error);
+contract Test is Test1{
 
     receive() external payable{}
-    function add(uint256 x, uint256 y) public returns (uint256){
-        emit Message("Okkkkkkkkkkkkkk");
+
+
+    function add(uint256 x, uint256 y) public pure returns (uint){
         return x + y;
     }
     
