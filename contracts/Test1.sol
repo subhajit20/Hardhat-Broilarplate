@@ -6,7 +6,11 @@ pragma solidity ^0.8.9;
 
 
 contract Test1 {
-    function dummy() public pure returns(uint){
-        return 1;
+
+    struct Blog{
+        string blogname;
+        string time;
     }
+
+    mapping (address => Blog[]) userrecord;
 }

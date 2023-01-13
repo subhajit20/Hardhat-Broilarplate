@@ -9,7 +9,7 @@ describe("Test contract", function () {
         /**
          * Getting all the test accounts from hardhat network
          */
-        const [owner] = await ethers.getSigners();
+        const [owner,address1] = await ethers.getSigners();
         const TestContract1 = await ethers.getContractFactory("Test");
         // const TestContract2 = await ethers.getContractFactory("Test1");
 
@@ -27,17 +27,26 @@ describe("Test contract", function () {
 
         /**
          * Calling contract functions
+         * Can connect with another account of hardhat and interact with smart contract
         */
-       const additionTest = await contract1.add(6, 6);
 
-       const number = await contract1.dummy();
+        const today = new Date().toLocaleDateString()+"-"+new Date().toLocaleTimeString();
 
-       console.log(number)
+
+        await contract1.connect(address1).AddBlog("Blog1",today);
+
+        await contract1.connect(owner).AddBlog("Blog2",today);
+        await contract1.connect(owner).AddBlog("Blog3",today);
+
+        const blogs = await contract1.getBlog(address1.address);
+        
+        console.log(blogs)
        
        const tx = {
          to: contract1.address,
          value: ethers.utils.parseEther('5', 'ether')
         };
+
 
         /**
          * Sending ether to the smartcontract from the Externel Owned account

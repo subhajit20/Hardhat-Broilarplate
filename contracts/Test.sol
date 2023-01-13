@@ -9,16 +9,18 @@ contract Test is Test1{
 
     receive() external payable{}
 
+    event Message(string alert);
 
-    function add(uint256 x, uint256 y) public pure returns (uint){
-        return x + y;
-    }
-    
-    function subtract(uint256 x, uint256 y) public pure returns (uint256){
-        return x - y;
+    function AddBlog(string memory blogname,string memory time) public {
+        Test1.userrecord[msg.sender].push(Test1.Blog({blogname:blogname,time:time}));
+
+        emit Message("Blog has been added...");
     }
 
-    function getowner() public view returns (address){
-        return msg.sender;
+
+    function getBlog(address useraddress) public view returns (Test1.Blog[] memory blogs){
+        blogs = Test1.userrecord[useraddress];
+
+        return blogs;
     }
 }
