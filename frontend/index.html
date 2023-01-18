@@ -9,11 +9,150 @@
 <body>
     <h1>Testing Wes3</h1>
     <button id="connect">Connect With Metamask</button>
-
+    <button id="connectContract">Connect With Contract</button>
+    <button id="getdata">Get Blogs</button>
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="module"> 
+
+    let abi =  [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "alert",
+          "type": "string"
+        }
+      ],
+      "name": "Message",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "blogname",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "time",
+          "type": "string"
+        }
+      ],
+      "name": "AddBlog",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "depositeetherto_contract",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "useraddress",
+          "type": "address"
+        }
+      ],
+      "name": "getBlog",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "blogname",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "time",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Test1.Blog[]",
+          "name": "blogs",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rec",
+          "type": "address"
+        }
+      ],
+      "name": "getbalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getcontractbalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rec",
+          "type": "address"
+        }
+      ],
+      "name": "transferbalance",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ]
+    let jsondata;
+        const getabi = async () =>{
+            const res = await fetch("./TestCopy.json");
+
+            const data = await res.json()
+
+            return data;
+        }
+        getabi().then((data)=>{
+            jsondata = data;
+        })
+            
         const btn = document.getElementById("connect");
-        let web3js
+        let web3;
+        let accounts = ''
+        let contract;
+
+
+        const contract_address = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
         btn.addEventListener('click',async ()=>{
 
             /**'
@@ -21,16 +160,53 @@
              * If undefined then it will tell us to install metamask
             */
             if(typeof window.ethereum != 'undefined'){
-                var web3 = new Web3(window.ethereum);
-                console.log(web3)
-                const account = await web3.eth.requestAccounts()
-                const balance = await web3.eth.getBalance(account[0])
-                console.log(account[0])
-                console.log(balance)
+                web3 = new Web3(window.ethereum);
+                accounts = await web3.eth.requestAccounts()
+                /**
+                 * Connect with the contract
+                */
+                contract =  new web3.eth.Contract(jsondata.abi,contract_address);
             }else{
                 console.log("Metamask is not installed...")
             }
+            console.log(accounts[0])
         })
+
+        /**
+         * Get contract balance...
+         * connect with contract
+        */
+        const connectContract = document.getElementById("connectContract");
+
+        connectContract.addEventListener("click",async ()=>{
+
+            /**
+             * For sending transaction we use send 
+             * To change the state of the contract we have to
+             * use send({from:account})
+            */
+            const data = await contract.methods.AddBlog("Blog1",'Data').send({from: accounts[0]})
+            console.log(data)
+        })
+
+
+        /**
+         * Get all blogs
+        */
+       const getdata = document.getElementById("getdata");
+       getdata.addEventListener("click",async ()=>{
+
+            /**
+             * For getting states value
+             * use call()
+            */
+            contract.methods.getBlog(accounts[0]).call().then((data)=>{
+                console.log(data);
+            }).catch((err)=>{
+                console.log(err)
+            })
+        })
+
     </script>
 </body>
 </html>

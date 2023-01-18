@@ -8,9 +8,7 @@ async function main() {
 
   const contract1 = await Test.deploy();
 
-  console.log(
-    `Lock with 1 ETH and unlock timestamp deployed to ${contract1.address}`
-  );
+  console.log(`deployed ${contract1.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
