@@ -7,10 +7,21 @@
     <title>Testing Wes3</title>
 </head>
 <body>
-    <h1>Testing Wes3</h1>
+    <div style="display: flex;justify-content: space-evenly;align-items: center;">
+      <h1>Testing Wes3</h1><span id="account_address" style="font-weight: 700;color: brown;"></span>
+    </div>
     <button id="connect">Connect With Metamask</button>
-    <button id="connectContract">Connect With Contract</button>
+    <button id="connectContract">Create Blogs</button>
     <button id="getdata">Get Blogs</button>
+    <button id="deposite">Deposite Ether To the Contract ADDRESS</button>
+    <button id="checkBalance">Get Contract Balance</button>
+
+    <input type="text" class="blogname">
+    <input type="date" class="blogdate">
+    <div class="my_blogs" >
+
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="module"> 
 
@@ -151,13 +162,15 @@
         let accounts = ''
         let contract;
 
-
-        const contract_address = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+        
+        const account_address = document.getElementById("account_address");
+        const contract_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         btn.addEventListener('click',async ()=>{
 
             /**'
              * Checking whether window.ethereum is undefined or nor
              * If undefined then it will tell us to install metamask
+             * Getting connected with contract which is deployed to our local hardhat blockchain network
             */
             if(typeof window.ethereum != 'undefined'){
                 web3 = new Web3(window.ethereum);
@@ -165,6 +178,7 @@
                 /**
                  * Connect with the contract
                 */
+                account_address.innerHTML = `Account - ${accounts[0]}`
                 contract =  new web3.eth.Contract(jsondata.abi,contract_address);
             }else{
                 console.log("Metamask is not installed...")
@@ -174,10 +188,15 @@
 
         /**
          * Get contract balance...
-         * connect with contract
+         * 
         */
         const connectContract = document.getElementById("connectContract");
 
+        /**
+         * Adding Blogs
+        */
+       const blogname = document.querySelector(".blogname");
+       const blogdate = document.querySelector(".blogdate")
         connectContract.addEventListener("click",async ()=>{
 
             /**
@@ -185,8 +204,12 @@
              * To change the state of the contract we have to
              * use send({from:account})
             */
-            const data = await contract.methods.AddBlog("Blog1",'Data').send({from: accounts[0]})
-            console.log(data)
+           if(blogname.value == null || blogdate.value == null){
+            console.log("Fill the name and date value...")
+           }else{
+             const data = await contract.methods.AddBlog(blogname.value,blogdate.value).send({from: accounts[0]})
+             console.log(data)
+            }
         })
 
 
@@ -194,19 +217,53 @@
          * Get all blogs
         */
        const getdata = document.getElementById("getdata");
+       const my_blogs = document.querySelector(".my_blogs");
+
        getdata.addEventListener("click",async ()=>{
 
             /**
              * For getting states value
              * use call()
             */
-            contract.methods.getBlog(accounts[0]).call().then((data)=>{
-                console.log(data);
+           let html = ``;
+            contract.methods.getBlog(accounts[0]).call().then((blogs)=>{
+              console.log(blogs)
+                if(blogs.length > 0){
+                  blogs.map((x)=>{
+                    html += `
+                          <h3>${x.blogname}</h3>
+                          <h3>${x.time}</h3>
+                    `
+                  })
+                  my_blogs.innerHTML = html;
+                }
             }).catch((err)=>{
                 console.log(err)
             })
         })
 
+
+        /**
+         * Deposite Ether to the contract 
+        */
+
+        const deposite = document.getElementById("deposite");
+
+        deposite.addEventListener("click",async ()=>{
+          const transaction = await contract.methods.depositeetherto_contract().send({from:accounts[0],to:contract_address,value: web3.utils.toWei('1', 'wei'),});
+          console.log(transaction)
+        })
+
+        /**
+         * Check Contract Balance
+        */
+       const checkBalance = document.getElementById("checkBalance");
+
+       checkBalance.addEventListener("click",async()=>{
+        const balance = await contract.methods.getcontractbalance().call();
+
+        console.log(balance)
+       })
     </script>
 </body>
 </html>
